@@ -188,7 +188,6 @@ std::string_view genelement(element e){
 		}; 
 	str += "},[";
 	str += expbajodes(e.content);
-	//str += "\")";
 	// C++ reference material shows += to be faster than = x + y + x 
 
 	return str;
@@ -351,7 +350,7 @@ int main(int argc, char* argv[]){
 
 			output += ts;
 		} else if(std::holds_alternative<closing>(si)){
-			
+			// use only one element until nesting support is added			
 			output += "][0]);";
 			idstack.pop_back();
 			openvar = false;
