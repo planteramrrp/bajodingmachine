@@ -1,5 +1,4 @@
-# BajodingMachine
-<sup><sup>v0</sup></sup>
+# BajodingMachine v0
 ## Build
 Compile with C++ compiler of choice with C++26 standard enabled
 ## Usage
