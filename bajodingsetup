@@ -1,0 +1,101 @@
+<body>
+<script>
+let $bajodes = {
+}
+
+const $bajoder = {
+	set(obj, prop, value){
+		obj.value = value;
+		for(let use of $bajodes[obj.name].uses){
+			let s = use.split(".")
+			let id = s[0]
+			let field = s.slice(1).join('.')	
+			let e = document.getElementById(id)
+			let f = e.getAttribute("$" + field)
+			if(field != "content") e.setAttribute(field, $render(f))
+			else e.innerHTML = $render(f);
+		} 
+	}
+}
+function $splitter(use){
+	let n = 0;
+	let p = 0;
+	let splut = []
+	if(use){
+		for(let i = 0; i < use.length; i++){
+			let c = use[i];
+			if(c == "{"){
+				n++;
+				if(n == 1){
+					splut.push(use.slice(p, i));
+					p = i;
+				}
+			}
+			if(c == "}"){
+				n--;
+				if(n == 0){
+					splut.push(use.slice(p+1, i));
+					p = i+1;
+				}
+			}
+		}
+		splut.push(use.slice(p))
+	}
+	return splut;
+}
+function $render(str){
+	let splut = $splitter(str);
+	for(let i = 1; i < splut.length; i+=2){
+		splut[i] = String(eval(splut[i]));
+	}
+	return splut.join('');
+}
+function $state(value, name){
+	//only do ints for now
+	$bajodes[name] = {
+		value: value,
+		name: name,
+		uses: []
+	}
+	let proxy = new Proxy($bajodes[name], $bajoder);
+
+	return proxy;
+}
+
+function $element(elem, id, bindings, attr, content){
+	const e = document.createElement(elem);	
+	e.id = id;
+	for(let [k, a] of Object.entries(attr)){
+		e.setAttribute("$" + k, a);
+		e.setAttribute(k, $render(a));
+	}
+	for(let [k, a] of Object.entries(bindings)){
+		e[k] = a;
+	}
+	e.setAttribute("$content", content);
+	e.innerHTML = $render(content);
+	document.body.appendChild(e);
+	return e;
+}
+function $mut(use, location){
+    let splut = $splitter(use);
+
+    for(let i = 1; i < splut.length; i+=2){
+        let bj = false;
+        for(let [k, a] of Object.entries($bajodes)){
+            if(splut[i].includes(k)){
+                $bajodes[k].uses.push(location);
+                bj = true;
+                console.log("bajode yes");
+            }
+        }
+        if(!bj){
+            splut[i] = String(eval(splut[i]));
+        } else {
+            splut[i] = `{${splut[i]}}`
+        }
+    }
+    return splut.join('');
+}
+
+
